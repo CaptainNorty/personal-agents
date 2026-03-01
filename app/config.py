@@ -29,7 +29,11 @@ class Settings(BaseSettings):
     podcast_check_interval_minutes: int = 30
 
     # Transcription
-    deepgram_api_key: str = ""
+    assemblyai_api_key: str = ""
+
+    # PodcastIndex (for Spotify link resolution)
+    podcastindex_api_key: str = ""
+    podcastindex_api_secret: str = ""
 
     # App settings
     environment: str = "local"
