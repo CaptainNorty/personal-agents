@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, Float, Index, Text
+from sqlalchemy import DateTime, Date, Float, Index, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.models import Base, BaseModel
@@ -35,7 +35,7 @@ class FoodLog(Base, BaseModel):
     serving_unit: Mapped[str] = mapped_column(Text)
     meal_type: Mapped[str] = mapped_column(Text)  # breakfast/lunch/dinner/snack
     source: Mapped[str] = mapped_column(Text)
-    logged_at: Mapped[datetime] = mapped_column()
+    logged_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class DailySummary(Base, BaseModel):
