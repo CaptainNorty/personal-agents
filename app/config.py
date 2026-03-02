@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     # Anthropic
     anthropic_api_key: str = ""
 
+    # Nutritionix API
+    nutritionix_app_id: str = ""
+    nutritionix_api_key: str = ""
+
     # Telegram bot tokens
     telegram_podcast_bot_token: str = ""
     telegram_nutrition_bot_token: str = ""

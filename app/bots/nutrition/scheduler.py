@@ -1,36 +1,62 @@
-from datetime import datetime, timezone
-
 from loguru import logger
 
-from app.bots.nutrition.models import NutritionEntry
+from app.bots.nutrition.agent import _get_local_now, nutrition_agent
 from app.common.scheduler import register_job
 from app.common.telegram import send_message
 from app.config import settings
-from app.db.session import async_session
 
 
-async def send_nutrition_prompt() -> None:
-    """Scheduled job: send daily nutrition prompt."""
-    async with async_session() as session:
-        entry = NutritionEntry(prompt_sent_at=datetime.now(timezone.utc))
-        session.add(entry)
-        await session.commit()
+async def send_eod_prompt() -> None:
+    """Scheduled job: ask user if they have anything else to log before EOD summary."""
+    chat_id = settings.owner_chat_id
+    token = settings.telegram_nutrition_bot_token
 
-    await send_message(
-        settings.telegram_nutrition_bot_token,
-        settings.owner_chat_id,
-        "What did you eat today?",
+    today = _get_local_now().strftime("%Y-%m-%d")
+    thread_id = f"{chat_id}:{today}"
+
+    result = await nutrition_agent.ainvoke(
+        {"messages": [{"role": "user", "content": "[SYSTEM:EOD_PROMPT]"}]},
+        config={"configurable": {"thread_id": thread_id}},
     )
-    logger.info("Sent nutrition prompt")
+
+    response_text = result["messages"][-1].content
+    await send_message(token, chat_id, response_text)
+    logger.info("Sent EOD nutrition prompt")
+
+
+async def generate_eod_summary_timeout() -> None:
+    """Scheduled job: generate and send daily summary after timeout."""
+    chat_id = settings.owner_chat_id
+    token = settings.telegram_nutrition_bot_token
+
+    today = _get_local_now().strftime("%Y-%m-%d")
+    thread_id = f"{chat_id}:{today}"
+
+    result = await nutrition_agent.ainvoke(
+        {"messages": [{"role": "user", "content": "[SYSTEM:EOD_TIMEOUT]"}]},
+        config={"configurable": {"thread_id": thread_id}},
+    )
+
+    response_text = result["messages"][-1].content
+    await send_message(token, chat_id, response_text)
+    logger.info("Sent EOD nutrition summary")
 
 
 def register_nutrition_jobs() -> None:
-    """Register daily nutrition prompt at 6pm."""
+    """Register end-of-day nutrition jobs."""
     register_job(
-        send_nutrition_prompt,
+        send_eod_prompt,
         "cron",
-        hour=18,
+        hour=21,
         minute=0,
-        id="nutrition_daily_prompt",
+        id="nutrition_eod_prompt",
+        replace_existing=True,
+    )
+    register_job(
+        generate_eod_summary_timeout,
+        "cron",
+        hour=21,
+        minute=30,
+        id="nutrition_eod_timeout",
         replace_existing=True,
     )
