@@ -5,7 +5,7 @@ from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.bots.podcast.agent import summarize_transcript
+from app.bots.podcast.agent import checkpointer, podcast_agent, summarize_transcript
 from app.bots.podcast.models import PodcastEpisode
 from app.bots.podcast.spotify import resolve_spotify_url
 from app.common.audio import transcribe_audio
@@ -48,10 +48,17 @@ async def handle_message(
         else:
             await send_message(token, chat_id, "No pending episodes to summarize.")
     else:
-        await send_message(token, chat_id, "Send me a podcast URL or reply 'yes' to a new episode notification.")
+        await send_typing(token, chat_id)
+        background_tasks.add_task(_handle_question, chat_id, text)
 
 
-async def _process_episode(chat_id: str, audio_url: str, episode_id=None) -> None:
+async def _process_episode(
+    chat_id: str,
+    audio_url: str,
+    episode_id=None,
+    show_name: str | None = None,
+    episode_title: str | None = None,
+) -> None:
     """Background task: transcribe and summarize a podcast episode."""
     token = settings.telegram_podcast_bot_token
     try:
@@ -71,7 +78,8 @@ async def _process_episode(chat_id: str, audio_url: str, episode_id=None) -> Non
             else:
                 episode = PodcastEpisode(
                     feed_url="manual",
-                    episode_title="Manual submission",
+                    show_name=show_name,
+                    episode_title=episode_title or "Manual submission",
                     audio_url=audio_url,
                     transcript=transcript,
                     status="summarizing",
@@ -100,12 +108,41 @@ async def _process_spotify_episode(chat_id: str, spotify_url: str) -> None:
     """Background task: resolve a Spotify URL, then transcribe and summarize."""
     token = settings.telegram_podcast_bot_token
     try:
-        audio_url = await resolve_spotify_url(spotify_url)
+        audio_url, show_name, episode_title = await resolve_spotify_url(spotify_url)
         await send_message(token, chat_id, "Found the audio. Transcribing now...")
-        await _process_episode(chat_id, audio_url)
+        await _process_episode(chat_id, audio_url, show_name=show_name, episode_title=episode_title)
     except ValueError as exc:
         logger.warning(f"Spotify resolution failed for {spotify_url}: {exc}")
         await send_message(token, chat_id, f"Couldn't resolve that Spotify link: {exc}")
     except Exception:
         logger.exception(f"Failed to process Spotify episode: {spotify_url}")
         await send_message(token, chat_id, "Sorry, something went wrong processing that Spotify link.")
+
+
+async def _handle_question(chat_id: str, text: str) -> None:
+    """Background task: answer a free-text question using the podcast agent."""
+    token = settings.telegram_podcast_bot_token
+    thread_id = f"podcast:{chat_id}"
+    config = {"configurable": {"thread_id": thread_id}}
+
+    try:
+        result = await podcast_agent.ainvoke(
+            {"messages": [{"role": "user", "content": text}]},
+            config=config,
+        )
+        response_text = result["messages"][-1].content
+    except Exception:
+        logger.exception(f"Podcast agent error on thread {thread_id}, resetting thread")
+        if thread_id in checkpointer.storage:
+            del checkpointer.storage[thread_id]
+        try:
+            result = await podcast_agent.ainvoke(
+                {"messages": [{"role": "user", "content": text}]},
+                config=config,
+            )
+            response_text = result["messages"][-1].content
+        except Exception:
+            logger.exception("Podcast agent error on retry")
+            response_text = "Sorry, something went wrong. Please try again."
+
+    await send_message(token, chat_id, response_text)

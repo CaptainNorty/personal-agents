@@ -10,6 +10,7 @@ class PodcastEpisode(Base, BaseModel):
     __tablename__ = "podcast_episodes"
 
     feed_url: Mapped[str] = mapped_column(Text)
+    show_name: Mapped[str | None] = mapped_column(Text, default=None)
     episode_title: Mapped[str] = mapped_column(Text)
     audio_url: Mapped[str] = mapped_column(Text)
     published_at: Mapped[datetime | None] = mapped_column(default=None)

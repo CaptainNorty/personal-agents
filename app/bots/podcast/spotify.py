@@ -13,9 +13,10 @@ PODCASTINDEX_BASE = "https://api.podcastindex.org/api/1.0"
 TITLE_MATCH_THRESHOLD = 0.4
 
 
-async def resolve_spotify_url(url: str) -> str:
+async def resolve_spotify_url(url: str) -> tuple[str, str, str]:
     """Resolve a Spotify episode URL to a direct audio (MP3) URL.
 
+    Returns (audio_url, show_name, episode_title).
     Raises ValueError if resolution fails at any step.
     """
     show_name, episode_title = await _get_spotify_metadata(url)
@@ -23,7 +24,7 @@ async def resolve_spotify_url(url: str) -> str:
 
     feed_id = await _search_podcast_feed(show_name)
     audio_url = await _find_episode_audio(feed_id, episode_title)
-    return audio_url
+    return audio_url, show_name, episode_title
 
 
 async def _get_spotify_metadata(url: str) -> tuple[str, str]:

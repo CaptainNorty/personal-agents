@@ -18,6 +18,7 @@ async def check_new_episodes() -> None:
         for ep in new_episodes:
             episode = PodcastEpisode(
                 feed_url=ep["feed_url"],
+                show_name=ep["feed_title"],
                 episode_title=ep["episode_title"],
                 audio_url=ep["audio_url"],
                 published_at=ep["published_at"],
