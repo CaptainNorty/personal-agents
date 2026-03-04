@@ -1,4 +1,5 @@
 import hashlib
+import html
 import re
 import time
 from difflib import SequenceMatcher
@@ -39,7 +40,7 @@ async def _get_spotify_metadata(url: str) -> tuple[str, str]:
         resp.raise_for_status()
         data = resp.json()
 
-        title = data.get("title", "")
+        title = html.unescape(data.get("title", ""))
 
         # oEmbed sometimes returns "Episode Title - Podcast Name"
         if " - " in title:
