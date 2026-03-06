@@ -58,17 +58,17 @@ async def _get_show_name_from_page(client: httpx.AsyncClient, url: str) -> str:
     """Extract the podcast/show name from a Spotify episode page's meta tags."""
     resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
     resp.raise_for_status()
-    html = resp.text
+    page_html = resp.text
 
     # og:description typically: "Listen to this episode from <Show Name> on Spotify. ..."
-    match = re.search(r'content="[^"]*?\bfrom (.+?) on Spotify', html)
+    match = re.search(r'content="[^"]*?\bfrom (.+?) on Spotify', page_html)
     if match:
-        return match.group(1).strip()
+        return html.unescape(match.group(1).strip())
 
     # Fallback: <title> tag often "Episode Title · Show Name | Podcast on Spotify"
-    match = re.search(r"<title>.*?·\s*(.+?)\s*\|", html)
+    match = re.search(r"<title>.*?·\s*(.+?)\s*\|", page_html)
     if match:
-        return match.group(1).strip()
+        return html.unescape(match.group(1).strip())
 
     raise ValueError(
         "Could not determine podcast name from Spotify page — "
