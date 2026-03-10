@@ -40,8 +40,3 @@ Deployed the app to AWS so it runs without a local server or ngrok.
 - RDS endpoint: `personal-agents.ctq8wc62m8wh.us-east-2.rds.amazonaws.com`
 - Webhook URL: `https://norty-agents.duckdns.org`
 - DBeaver connects via SSH tunnel through EC2 to reach RDS
-
-cat >> ~/personal-agents/.env << 'EOF'
-ELEVENLABS_API_KEY=sk_97aea5f3525fcb9e4a49d4be490b7cc22f907bc05e920ffe
-TELEGRAM_EXPLAINER_BOT_TOKEN=8609672817:AAHAVkz8bepsL6hMLsXhvvHlGLWfHcdb_Io
-EOF
