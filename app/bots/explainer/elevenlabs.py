@@ -20,7 +20,7 @@ async def text_to_speech(text: str) -> bytes:
                 "text": text,
                 "model_id": "eleven_multilingual_v2",
             },
-            params={"output_format": "ogg_opus"},
+            params={"output_format": "opus_48000_128"},
         )
         if not resp.is_success:
             logger.error(f"ElevenLabs TTS failed: {resp.status_code} {resp.text}")
