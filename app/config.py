@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     telegram_podcast_bot_token: str = ""
     telegram_nutrition_bot_token: str = ""
     telegram_social_bot_token: str = ""
+    telegram_explainer_bot_token: str = ""
 
     # Telegram webhook base URL
     telegram_webhook_base_url: str = ""
@@ -31,6 +32,9 @@ class Settings(BaseSettings):
     # Podcast settings
     podcast_feed_urls: str = ""
     podcast_check_interval_minutes: int = 30
+
+    # ElevenLabs TTS
+    elevenlabs_api_key: str = ""
 
     # Transcription
     assemblyai_api_key: str = ""
@@ -57,6 +61,7 @@ class Settings(BaseSettings):
             "podcast": self.telegram_podcast_bot_token,
             "nutrition": self.telegram_nutrition_bot_token,
             "social": self.telegram_social_bot_token,
+            "explainer": self.telegram_explainer_bot_token,
         }
 
 

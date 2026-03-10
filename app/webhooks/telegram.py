@@ -4,6 +4,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.bots.explainer import router as explainer_router
 from app.bots.nutrition import router as nutrition_router
 from app.bots.podcast import router as podcast_router
 from app.bots.social import router as social_router
@@ -35,6 +36,8 @@ async def telegram_webhook(
         await nutrition_router.handle_message(chat_id, text, session)
     elif bot_name == "social":
         await social_router.handle_message(chat_id, text, session)
+    elif bot_name == "explainer":
+        await explainer_router.handle_message(chat_id, text)
     else:
         logger.warning(f"Unknown bot name: {bot_name}")
 

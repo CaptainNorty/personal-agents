@@ -22,6 +22,18 @@ async def send_message(bot_token: str, chat_id: str, text: str) -> None:
                 logger.error(f"Failed to send message: {resp.text}")
 
 
+async def send_voice(bot_token: str, chat_id: str, audio_bytes: bytes, filename: str = "voice.ogg") -> None:
+    """Send a voice memo via Telegram Bot API (multipart upload)."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{TELEGRAM_API}/bot{bot_token}/sendVoice",
+            data={"chat_id": chat_id},
+            files={"voice": (filename, audio_bytes, "audio/ogg")},
+        )
+        if not resp.is_success:
+            logger.error(f"Failed to send voice: {resp.text}")
+
+
 async def send_typing(bot_token: str, chat_id: str) -> None:
     """Send a 'typing' action indicator."""
     async with httpx.AsyncClient() as client:
