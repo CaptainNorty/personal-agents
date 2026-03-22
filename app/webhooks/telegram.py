@@ -40,7 +40,7 @@ async def telegram_webhook(
     elif bot_name == "explainer":
         await explainer_router.handle_message(chat_id, text)
     elif bot_name == "high_council":
-        await high_council_router.handle_message(chat_id, text)
+        background_tasks.add_task(high_council_router.handle_message, chat_id, text)
     else:
         logger.warning(f"Unknown bot name: {bot_name}")
 
