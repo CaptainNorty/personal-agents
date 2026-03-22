@@ -59,5 +59,5 @@ async def generate_council_audio(conclusions: list[tuple[str, str]]) -> bytes:
 
     # Export as OGG/Opus for Telegram voice messages
     buffer = io.BytesIO()
-    combined.export(buffer, format="ogg", codec="opus")
+    combined.export(buffer, format="ogg", codec="libopus")
     return buffer.getvalue()
