@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     telegram_nutrition_bot_token: str = ""
     telegram_social_bot_token: str = ""
     telegram_explainer_bot_token: str = ""
+    telegram_high_council_bot_token: str = ""
 
     # Telegram webhook base URL
     telegram_webhook_base_url: str = ""
@@ -62,6 +63,7 @@ class Settings(BaseSettings):
             "nutrition": self.telegram_nutrition_bot_token,
             "social": self.telegram_social_bot_token,
             "explainer": self.telegram_explainer_bot_token,
+            "high_council": self.telegram_high_council_bot_token,
         }
 
 
