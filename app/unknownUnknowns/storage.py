@@ -13,6 +13,7 @@ instance role attached to the EC2 instance.
 
 from __future__ import annotations
 
+import os
 import uuid
 from functools import lru_cache
 
@@ -31,6 +32,11 @@ def _s3_client():
     session_kwargs: dict = {}
     if settings.aws_profile:
         session_kwargs["profile_name"] = settings.aws_profile
+    else:
+        # boto3 reads AWS_PROFILE from os.environ directly and treats an empty
+        # string as a profile name to look up (→ ProfileNotFound). On EC2 we
+        # want the default credential chain (instance role), so clear it.
+        os.environ.pop("AWS_PROFILE", None)
     session = boto3.Session(**session_kwargs)
     return session.client(
         "s3",

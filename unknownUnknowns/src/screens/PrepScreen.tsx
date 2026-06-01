@@ -9,6 +9,10 @@ const ARC_RADIUS = 68;
 const ARC_CIRCUMFERENCE = 2 * Math.PI * ARC_RADIUS;
 
 type Phase = 'cold' | 'final';
+// Pre-flight mic permission here so the browser prompt doesn't race the
+// RecordScreen mount on first use. Once granted the browser caches it for
+// the rest of the session, so subsequent Prep mounts see 'granted' instantly.
+type MicStatus = 'requesting' | 'granted' | 'denied';
 
 type LocationState = {
   promptCount?: 1 | 2 | 3;
@@ -31,6 +35,25 @@ export default function PrepScreen({ phase }: Props) {
 
   const [remaining, setRemaining] = useState(10);
   const [engaging, setEngaging] = useState(false);
+  const [micStatus, setMicStatus] = useState<MicStatus>('requesting');
+
+  useEffect(() => {
+    let cancelled = false;
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        // Immediately release — RecordScreen re-acquires from the cached grant.
+        stream.getTracks().forEach((t) => t.stop());
+        if (!cancelled) setMicStatus('granted');
+      })
+      .catch((err) => {
+        console.warn('[uu] mic pre-flight denied:', err);
+        if (!cancelled) setMicStatus('denied');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Prompt text comes from the API for both phases, with fixture fallback.
   // Cold cache is populated by Home during Begin; finals cache fills on first
@@ -78,6 +101,7 @@ export default function PrepScreen({ phase }: Props) {
   const promptLeadingClass = phase === 'cold' ? 'leading-[1.05]' : 'leading-[1.1]';
 
   useEffect(() => {
+    if (micStatus !== 'granted') return;
     const startedAt = Date.now();
     let navigateTimeout: number | null = null;
 
@@ -102,7 +126,35 @@ export default function PrepScreen({ phase }: Props) {
       window.clearInterval(tick);
       if (navigateTimeout !== null) window.clearTimeout(navigateTimeout);
     };
-  }, [navigate, phase, promptIndex, promptCount, includeRepeat]);
+  }, [micStatus, navigate, phase, promptIndex, promptCount, includeRepeat]);
+
+  if (micStatus === 'denied') {
+    return (
+      <div className="min-h-screen w-full bg-paper text-ink flex items-center justify-center px-6">
+        <div className="max-w-[280px] text-center">
+          <div className="tiny-label">Microphone required</div>
+          <p className="mt-4 text-[14px] leading-[1.45] opacity-70">
+            Unknown Unknowns needs your microphone to record. Allow it in your browser
+            settings, then start over.
+          </p>
+          <button
+            onClick={() => navigate('/', { replace: true })}
+            className="mt-7 text-[11px] tracking-[0.14em] uppercase opacity-70 underline underline-offset-4"
+          >
+            Back home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (micStatus === 'requesting') {
+    return (
+      <div className="min-h-screen w-full bg-paper text-ink flex items-center justify-center">
+        <div className="tiny-label opacity-50">Enabling microphone…</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-paper text-ink flex flex-col">
