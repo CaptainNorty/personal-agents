@@ -11,13 +11,26 @@ All endpoints depend on `get_current_user` (currently the stub dev user) and
 `get_db` (the existing async sessionmaker).
 """
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from datetime import date
+
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.auth import get_current_user
 from app.db.session import get_db
 from app.unknownUnknowns import service
 from app.unknownUnknowns.models import User
+
+
+async def get_user_today(x_user_timezone: str | None = Header(default=None)) -> date:
+    """Resolve the caller's local date from the X-User-Timezone header.
+
+    The frontend sends an IANA tz string (e.g. 'America/Denver') from
+    Intl.DateTimeFormat().resolvedOptions().timeZone. We compute "today" in
+    that zone so the daily-ritual boundary matches local midnight rather
+    than the server's UTC midnight. Falls back to UTC if missing/invalid.
+    """
+    return service.today_in_tz(x_user_timezone)
 from app.unknownUnknowns.briefing_generator import generate_briefings_for_session
 from app.unknownUnknowns.content_generator import (
     PENDING_TOPICS_PREFS_KEY,
@@ -59,13 +72,14 @@ router = APIRouter(prefix="/api/v1/uu", tags=["unknown-unknowns"])
 async def me(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> MeResponse:
-    today = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     today_state = TodaySessionState(
-        exists=today is not None,
-        prompt_count=today.prompt_count if today else None,
-        include_repeat=today.include_repeat if today else None,
-        completed_at=today.completed_at if today else None,
+        exists=daily is not None,
+        prompt_count=daily.prompt_count if daily else None,
+        include_repeat=daily.include_repeat if daily else None,
+        completed_at=daily.completed_at if daily else None,
     )
     return MeResponse(
         user_id=user.id,
@@ -82,12 +96,14 @@ async def start_today(
     body: SessionStartRequest,
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> SessionStartResponse:
     daily = await service.get_or_create_today_session(
         session=session,
         user=user,
         prompt_count=body.prompt_count,
         include_repeat=body.include_repeat,
+        today=today,
     )
     return SessionStartResponse(
         session_id=daily.id,
@@ -101,8 +117,9 @@ async def start_today(
 async def get_today(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> TodaySessionResponse:
-    daily = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     if daily is None:
         raise HTTPException(
             status_code=404,
@@ -127,6 +144,7 @@ async def get_today(
 async def get_today_finals(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> TodayFinalsResponse:
     """Final-challenge prompts for today's session — new angles on the same
     topics the user already covered cold.
@@ -134,7 +152,7 @@ async def get_today_finals(
     TODO: gate by "all briefings viewed" once we track that. For now the
     frontend only fetches at the right moment, which is good enough for v1.
     """
-    daily = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     if daily is None:
         raise HTTPException(
             status_code=404,
@@ -183,12 +201,13 @@ async def kick_off_scoring(
     background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> ScoringGenerateResponse:
     """Kick off end-of-day scoring for today's session. Idempotent: if every
     topic already has both cold + final scores, returns 'complete' without
     re-running. Otherwise schedules background scoring (waits for any missing
     transcripts up to 90s each, then scores in parallel per topic)."""
-    daily = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     if daily is None:
         raise HTTPException(
             status_code=404,
@@ -207,10 +226,11 @@ async def kick_off_scoring(
 async def get_scores(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> ScoresResponse:
     """Poll endpoint for scoring progress. Returns per-topic blocks; topics
     not yet scored have empty metrics and null deltas/notes."""
-    daily = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     if daily is None:
         raise HTTPException(
             status_code=404,
@@ -238,6 +258,7 @@ async def complete_today(
     background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> CompleteSessionResponse:
     """Mark today's session done, update streak, and kick off generation of
     tomorrow's topics in the background.
@@ -246,14 +267,16 @@ async def complete_today(
     streak. If the pending-topics pool is already populated (3+), we skip
     re-running the generator.
     """
-    daily = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     if daily is None:
         raise HTTPException(
             status_code=404,
             detail="No session today to complete.",
         )
 
-    state_changed = await service.mark_session_complete(session, user, daily)
+    state_changed = await service.mark_session_complete(
+        session, user, daily, today=today
+    )
 
     pool_size = len((user.prefs or {}).get(PENDING_TOPICS_PREFS_KEY) or [])
     if pool_size >= 3:
@@ -281,6 +304,7 @@ async def kick_off_briefing_generation(
     background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> BriefingGenerateResponse:
     """Kick off post-cold-record briefing generation for today's session.
 
@@ -290,7 +314,7 @@ async def kick_off_briefing_generation(
       - generates briefings for prompts that need them, in parallel
     The client polls GET /sessions/today/briefings until status='complete'.
     """
-    daily = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     if daily is None:
         raise HTTPException(
             status_code=404,
@@ -310,13 +334,14 @@ async def kick_off_briefing_generation(
 async def get_briefings(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    today: date = Depends(get_user_today),
 ) -> BriefingsResponse:
     """Poll endpoint for briefing generation progress.
 
     status is 'pending' (none ready), 'partial' (some ready), or 'complete'
     (all ready). The client typically polls every 1-2s until 'complete'.
     """
-    daily = await service.find_today_session(session, user.id)
+    daily = await service.find_today_session(session, user.id, today=today)
     if daily is None:
         raise HTTPException(
             status_code=404,

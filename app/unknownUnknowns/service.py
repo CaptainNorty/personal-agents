@@ -8,6 +8,7 @@ prompts) lives here so it's reusable from tests and future cron jobs.
 
 import uuid
 from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +16,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.unknownUnknowns.content_generator import PENDING_TOPICS_PREFS_KEY
 from app.unknownUnknowns.fixtures import FAKE_TOPICS
 from app.unknownUnknowns.models import DailySession, Prompt, Recording, User
+
+
+def today_in_tz(tz_name: str | None) -> date:
+    """User's local date for an IANA timezone string (e.g. 'America/Denver').
+
+    Falls back to UTC if the header is missing or unparseable. We compute
+    "today" in the user's tz so the daily-ritual boundary matches local
+    midnight rather than server (UTC) midnight.
+    """
+    if not tz_name:
+        return datetime.now(timezone.utc).date()
+    try:
+        tz = ZoneInfo(tz_name)
+    except (ZoneInfoNotFoundError, ValueError):
+        return datetime.now(timezone.utc).date()
+    return datetime.now(tz).date()
 
 
 async def find_today_session(
@@ -36,6 +53,7 @@ async def get_or_create_today_session(
     user: User,
     prompt_count: int,
     include_repeat: bool,
+    today: date | None = None,
 ) -> DailySession:
     """Idempotent: returns the existing today's session if any, otherwise
     creates one and seeds `prompt_count` prompts.
@@ -46,13 +64,14 @@ async def get_or_create_today_session(
 
     Pending topics are drained from the front of the pool as they're consumed.
     """
-    existing = await find_today_session(session, user.id)
+    today = today or date.today()
+    existing = await find_today_session(session, user.id, today=today)
     if existing is not None:
         return existing
 
     daily = DailySession(
         user_id=user.id,
-        session_date=date.today(),
+        session_date=today,
         prompt_count=prompt_count,
         include_repeat=include_repeat,
     )
@@ -101,14 +120,17 @@ async def get_or_create_today_session(
 
 
 async def mark_session_complete(
-    session: AsyncSession, user: User, daily: DailySession
+    session: AsyncSession,
+    user: User,
+    daily: DailySession,
+    today: date | None = None,
 ) -> bool:
     """Mark today's session completed and update the user's streak.
 
     Returns True if this call actually changed state (caller can decide to
     kick off generation), False if it was already complete.
 
-    Streak logic (date-only — timezone is server's local for v1):
+    Streak logic (date-only, computed in the user's local timezone):
       - last_completed_date is None      → streak = 1
       - last_completed_date == today     → no change (idempotent)
       - last_completed_date == yesterday → streak += 1
@@ -118,7 +140,7 @@ async def mark_session_complete(
         return False
 
     daily.completed_at = datetime.now(timezone.utc).replace(tzinfo=None)
-    today = date.today()
+    today = today or date.today()
     yesterday = today - timedelta(days=1)
     last = user.last_completed_date
 

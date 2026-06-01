@@ -44,6 +44,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   // Attach Firebase ID token if the user is signed in. getIdToken auto-
   // refreshes if the cached token is near expiry (~5 min before).
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  // Tell the backend what "today" means in the user's local timezone, so
+  // the daily-ritual boundary matches local midnight rather than UTC midnight.
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz) headers['X-User-Timezone'] = tz;
+  } catch {
+    // Older browsers may throw — server falls back to UTC.
+  }
   const user = auth.currentUser;
   if (user) {
     try {
