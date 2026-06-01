@@ -1,8 +1,18 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
+
+# Resolve .env relative to the repo root (this file lives at app/config.py),
+# so launching the app from any CWD still finds the right file.
+_ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 
 
 class Settings(BaseSettings):
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {
+        "env_file": str(_ENV_PATH),
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",
+    }
 
     # Database
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/personal_agents"
@@ -47,6 +57,21 @@ class Settings(BaseSettings):
     # App settings
     environment: str = "local"
     log_level: str = "DEBUG"
+
+    # AWS / S3 — used by Unknown Unknowns for audio recording storage.
+    # aws_profile is consumed only on local dev (boto3.Session(profile_name=...)).
+    # In prod, set AWS_PROFILE="" in the EC2 .env so boto3 falls back to the
+    # instance role.
+    aws_profile: str = "personal"
+    s3_bucket: str = ""
+    s3_region: str = "us-east-2"
+
+    # Firebase Admin SDK — service account JSON used to verify ID tokens.
+    # Default resolves to <repo>/app/secrets/firebase-admin.json (gitignored).
+    # Override in prod via env var.
+    firebase_admin_key_path: str = str(
+        _ENV_PATH.parent / "app" / "secrets" / "firebase-admin.json"
+    )
 
     @property
     def podcast_feeds(self) -> list[str]:

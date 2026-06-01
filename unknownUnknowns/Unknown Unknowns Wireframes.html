@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Unknown Unknowns — Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #111;
+    --paper: #f6f3ec;
+    --paper-2: #efeae0;
+    --rule: #1a1a1a;
+    --muted: #6e6a62;
+    --grid: #d8d2c5;
+    --hand: 'Kalam', 'Caveat', cursive;
+    --ui: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    color: var(--ink);
+    font-family: var(--ui);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .canvas {
+    padding: 64px 56px 120px;
+    min-width: 1800px;
+  }
+
+  /* ===== Header ===== */
+  .doc-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    border-bottom: 1.5px solid var(--rule);
+    padding-bottom: 22px;
+    margin-bottom: 48px;
+  }
+  .doc-title {
+    font-family: var(--ui);
+    font-weight: 800;
+    font-size: 44px;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin: 0;
+  }
+  .doc-title .sub {
+    display: block;
+    font-family: var(--hand);
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .doc-meta {
+    font-family: var(--hand);
+    font-size: 18px;
+    color: var(--ink);
+    text-align: right;
+    line-height: 1.4;
+  }
+  .doc-meta b { font-weight: 700; }
+
+  /* ===== Section heads ===== */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 64px 0 24px;
+  }
+  .section-num {
+    font-family: var(--ui);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    border: 1.5px solid var(--ink);
+    padding: 6px 10px 4px;
+    background: var(--paper);
+  }
+  .section-title {
+    font-family: var(--ui);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .section-note {
+    font-family: var(--hand);
+    font-size: 17px;
+    color: var(--muted);
+  }
+
+  /* ===== Storyboard grid ===== */
+  .row {
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+
+  /* ===== Phone frame ===== */
+  .phone {
+    width: 270px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .phone .label {
+    font-family: var(--hand);
+    font-size: 18px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .phone .label .n {
+    font-family: var(--ui);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    padding: 3px 7px 2px;
+    border: 1.5px solid var(--ink);
+  }
+  .frame {
+    width: 270px;
+    height: 555px;
+    background: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 36px;
+    padding: 18px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .frame.black {
+    background: #000;
+    color: #fff;
+  }
+  /* Status bar + notch */
+  .frame::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 78px; height: 18px;
+    background: currentColor;
+    opacity: 0.95;
+    border-radius: 12px;
+  }
+  .frame .status {
+    position: absolute;
+    top: 14px;
+    left: 22px;
+    right: 22px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--ui);
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0;
+    z-index: 2;
+  }
+  .frame .status .l { opacity: 0; } /* hidden under notch but reserve */
+  .frame .status .r { display:flex; gap:4px; align-items:center; }
+  .frame .status .r::before {
+    content:'';
+    width:14px; height:7px;
+    border:1px solid currentColor;
+    border-radius:2px;
+    box-shadow: inset -2px 0 0 currentColor, 2px 0 0 -1px currentColor;
+  }
+  .frame.black::before { background: #fff; }
+  .screen {
+    position: absolute;
+    inset: 36px 14px 18px;
+    display: flex;
+    flex-direction: column;
+  }
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 4px;
+    background: currentColor;
+    opacity: 0.5;
+    border-radius: 2px;
+  }
+
+  /* shared in-screen primitives */
+  .h-center { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; text-align:center; }
+  .stack { display:flex; flex-direction:column; gap:8px; }
+  .pill {
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-family: var(--ui);
+    font-weight: 500;
+    font-size: 13px;
+    text-align: center;
+  }
+  .pill.solid {
+    background: currentColor;
+    color: #fff;
+  }
+  .frame.black .pill.solid { color:#000; }
+  .frame .pill.solid > * { color: inherit; }
+  .pill.solid span { color: #fff; }
+  .frame.black .pill.solid span { color:#000; }
+
+  .row-meta {
+    display:flex; justify-content:space-between;
+    font-family: var(--ui); font-size: 10px;
+    font-weight: 500; letter-spacing: 0.04em;
+    color: currentColor;
+    opacity: 0.85;
+  }
+  .tiny-label {
+    font-family: var(--ui);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  /* annotations beside frames */
+  .annot {
+    width: 200px;
+    flex-shrink: 0;
+    font-family: var(--hand);
+    font-size: 17px;
+    line-height: 1.3;
+    color: var(--ink);
+    padding-top: 60px;
+    position: relative;
+  }
+  .annot .arrow {
+    display: block;
+    margin-bottom: 8px;
+  }
+  .annot .arrow svg { width: 56px; height: 22px; }
+  .annot ul { margin: 6px 0; padding: 0 0 0 16px; }
+  .annot li { margin-bottom: 4px; }
+  .annot .tag {
+    display: inline-block;
+    font-family: var(--ui);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    border: 1.5px solid var(--ink);
+    padding: 3px 6px 2px;
+    background: var(--paper);
+    margin-bottom: 6px;
+  }
+
+  /* Phase strip */
+  .phase {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 16px;
+  }
+  .phase .dot {
+    width: 8px; height: 8px; background: var(--ink); border-radius: 50%;
+  }
+  .phase .name {
+    font-family: var(--ui);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .phase .desc {
+    font-family: var(--hand);
+    font-size: 16px;
+    color: var(--muted);
+  }
+  .phase .line { flex:1; height:1px; background: var(--ink); opacity: 0.2; }
+
+  /* ===== Logo directions ===== */
+  .logo-card {
+    width: 320px;
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    padding: 24px 20px 18px;
+  }
+  .logo-card.dark { background: #000; color: #fff; }
+  .logo-stage {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-meta {
+    border-top: 1px dashed currentColor;
+    padding-top: 12px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .logo-name {
+    font-family: var(--hand);
+    font-size: 22px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .logo-desc {
+    font-family: var(--hand);
+    font-size: 16px;
+    line-height: 1.3;
+    margin-top: 14px;
+    max-width: 320px;
+    color: var(--ink);
+  }
+
+  /* ===== Spec cards ===== */
+  .specs {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.2fr;
+    gap: 22px;
+  }
+  .spec {
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    padding: 22px;
+  }
+  .spec h4 {
+    margin: 0 0 14px;
+    font-family: var(--ui);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .spec h4 .sm {
+    font-family: var(--hand);
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted);
+    margin-left: 8px;
+  }
+  .type-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px dashed #ccc;
+    align-items: baseline;
+  }
+  .type-row:first-of-type { border-top: 0; padding-top: 4px; }
+  .type-row .meta {
+    font-family: var(--ui);
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .type-row .meta b { display:block; color: var(--ink); font-weight: 700; font-size: 11px; }
+  .type-row .sample { font-family: var(--ui); letter-spacing: -0.02em; line-height: 1.05; }
+  .ts-display { font-size: 30px; font-weight: 700; letter-spacing: -0.035em; }
+  .ts-display-mono { font-size: 36px; font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .ts-prompt { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+  .ts-body { font-size: 14px; font-weight: 400; line-height: 1.55; letter-spacing: 0; }
+  .ts-ui { font-size: 12px; font-weight: 500; letter-spacing: 0.02em; }
+  .ts-label { font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+
+  .swatch-row { display:flex; gap:10px; margin-bottom: 14px; }
+  .sw {
+    flex: 1;
+    border: 1.5px solid var(--ink);
+    height: 84px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    font-family: var(--ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .sw.ink { background:#000; color:#fff; }
+  .sw.paper { background:#fff; color:#000; }
+  .sw.note { background: #fafafa; color: #000; }
+  .spec p { font-family: var(--hand); font-size: 17px; line-height: 1.35; margin: 8px 0; }
+  .spec .kicker { font-family: var(--ui); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+  .motion-list { padding: 0; margin: 0; list-style: none; }
+  .motion-list li {
+    padding: 10px 0;
+    border-top: 1px dashed #ccc;
+    font-family: var(--ui);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .motion-list li:first-child { border-top: 0; }
+  .motion-list b {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  /* ===== custom in-screen widgets ===== */
+  .ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 2px dashed currentColor;
+    display:flex; align-items:center; justify-content:center;
+    position: relative;
+  }
+  .ring .rec-dot {
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .ring.solid { border-style: solid; border-width: 2px; }
+  .ring .arc {
+    position: absolute; inset: -2px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-color: currentColor transparent transparent currentColor;
+    transform: rotate(-45deg);
+  }
+  .waveform {
+    width: 220px; height: 60px;
+    display:flex; align-items:center; gap: 3px;
+    margin: 0 auto;
+  }
+  .waveform span {
+    display:inline-block;
+    width: 4px;
+    background: currentColor;
+    border-radius: 2px;
+  }
+  .radial-wave {
+    position: absolute; inset: -32px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: 0.35;
+  }
+  .radial-wave.r2 { inset: -22px; opacity: 0.55; }
+  .radial-wave.r3 { inset: -12px; opacity: 0.8; }
+  .radial-spikes {
+    position:absolute; inset: -36px;
+    border-radius:50%;
+    pointer-events:none;
+  }
+
+  .uu-mark {
+    font-family: var(--ui);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .progress-dots { display:flex; gap:6px; justify-content:center; }
+  .progress-dots i {
+    display:inline-block; width:18px; height:2px; background: currentColor; opacity: 0.25;
+  }
+  .progress-dots i.on { opacity: 1; }
+
+  .metric-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid currentColor;
+    align-items: baseline;
+    font-family: var(--ui);
+    font-size: 11px;
+  }
+  .metric-row:first-of-type { border-top: 0; }
+  .metric-row .lbl { font-weight: 500; letter-spacing: 0.02em; opacity: 0.8; }
+  .metric-row .a, .metric-row .b {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.55;
+    min-width: 18px;
+    text-align:right;
+  }
+  .metric-row .d {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    min-width: 30px;
+    text-align:right;
+    letter-spacing: -0.01em;
+  }
+  .metric-row .d.down { font-weight: 400; }
+
+  /* big number for countdown */
+  .countdown {
+    font-family: var(--ui);
+    font-weight: 800;
+    font-size: 200px;
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+  }
+  .delta-big {
+    font-family: var(--ui);
+    font-weight: 800;
+    font-size: 64px;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* flow arrow between frames */
+  .flow {
+    width: 60px;
+    align-self: stretch;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-top: 30px;
+  }
+  .flow svg { width: 60px; }
+
+  /* footer note */
+  .endnote {
+    font-family: var(--hand);
+    font-size: 18px;
+    line-height: 1.4;
+    color: var(--muted);
+    margin-top: 40px;
+    border-top: 1.5px solid var(--ink);
+    padding-top: 18px;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ============== HEADER ============== -->
+  <header class="doc-head">
+    <h1 class="doc-title">
+      Unknown&nbsp;Unknowns / Wireframes&nbsp;v1
+      <span class="sub">10 screens · 3 logo directions · type, color &amp; motion notes</span>
+    </h1>
+    <div class="doc-meta">
+      <div><b>Fidelity</b> &nbsp;low-fi, one direction</div>
+      <div><b>Palette</b> &nbsp;pure black + paper white</div>
+      <div><b>Type</b> &nbsp;Inter throughout</div>
+      <div><b>Voice</b> &nbsp;quietly intellectual</div>
+    </div>
+  </header>
+
+  <!-- ============== LOGO DIRECTIONS ============== -->
+  <div class="section-head">
+    <div class="section-num">A</div>
+    <h2 class="section-title">UU mark — three directions</h2>
+    <div class="section-rule"></div>
+    <div class="section-note">two confident, one weirder</div>
+  </div>
+
+  <div class="row">
+    <!-- LOGO 1: Overlapped Us, geometric -->
+    <div>
+      <div class="logo-card">
+        <div class="logo-stage">
+          <svg viewBox="0 0 220 140" width="240" height="152">
+            <!-- two interlocking U's -->
+            <path d="M30 28 v54 a32 32 0 0 0 64 0 v-54" fill="none" stroke="#111" stroke-width="14" stroke-linecap="square"/>
+            <path d="M126 28 v54 a32 32 0 0 0 64 0 v-54" fill="none" stroke="#111" stroke-width="14" stroke-linecap="square"/>
+            <!-- subtle overlap mark -->
+            <rect x="92" y="62" width="36" height="14" fill="#111"/>
+          </svg>
+        </div>
+        <div class="logo-meta">
+          <span>01</span><span class="logo-name">"The Bridge"</span>
+        </div>
+      </div>
+      <p class="logo-desc">Two squared-off U's joined by a single bar.<br/>Reads as <b>UU</b>, also as an architectural bridge — the leap between what you think you know and what you actually know.</p>
+    </div>
+
+    <!-- LOGO 2: Stacked / mirrored U + ∩ -->
+    <div>
+      <div class="logo-card dark">
+        <div class="logo-stage">
+          <svg viewBox="0 0 200 160" width="220" height="176">
+            <!-- top: inverted U -->
+            <path d="M30 80 v-40 a30 30 0 0 1 60 0 v40" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="square"/>
+            <!-- bottom: U -->
+            <path d="M110 80 v40 a30 30 0 0 0 60 0 v-40" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="square"/>
+          </svg>
+        </div>
+        <div class="logo-meta">
+          <span>02</span><span class="logo-name">"Mirror"</span>
+        </div>
+      </div>
+      <p class="logo-desc">U over inverted U. A vessel and its lid; what you contain and what's hidden above the line.<br/>Reads cleanly at favicon size as an <b>insignia</b>.</p>
+    </div>
+
+    <!-- LOGO 3: Weirder — quotation marks / negative U -->
+    <div>
+      <div class="logo-card">
+        <div class="logo-stage">
+          <svg viewBox="0 0 220 160" width="240" height="174">
+            <!-- big solid square with two punched U's -->
+            <defs>
+              <mask id="uumask">
+                <rect x="0" y="0" width="220" height="160" fill="#fff"/>
+                <path d="M40 50 v40 a18 18 0 0 0 36 0 v-40" fill="none" stroke="#000" stroke-width="14" stroke-linecap="square"/>
+                <path d="M104 50 v40 a18 18 0 0 0 36 0 v-40" fill="none" stroke="#000" stroke-width="14" stroke-linecap="square"/>
+                <!-- a third ghost U, half cut -->
+                <path d="M168 50 v40 a18 18 0 0 0 36 0 v-40" fill="none" stroke="#000" stroke-width="14" stroke-linecap="square" opacity="0.5"/>
+              </mask>
+            </defs>
+            <rect x="10" y="20" width="200" height="120" fill="#111" mask="url(#uumask)"/>
+          </svg>
+        </div>
+        <div class="logo-meta">
+          <span>03</span><span class="logo-name">"The Third"</span>
+        </div>
+      </div>
+      <p class="logo-desc">A block with U's <i>punched out</i> — plus a third, half-visible. The literal "unknown unknown" is implied, not drawn. Riskier; rewards a second look.</p>
+    </div>
+  </div>
+
+  <!-- ============== TYPE + COLOR + MOTION ============== -->
+  <div class="section-head">
+    <div class="section-num">B</div>
+    <h2 class="section-title">System</h2>
+    <div class="section-rule"></div>
+    <div class="section-note">type / color / motion at a glance</div>
+  </div>
+
+  <div class="specs">
+    <!-- TYPE -->
+    <div class="spec">
+      <h4>Type <span class="sm">Inter, single family</span></h4>
+      <div class="type-row">
+        <div class="meta"><b>Numerals</b>96/0.85<br/>weight 800</div>
+        <div class="sample"><span class="ts-display-mono">+1.4</span></div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>Display</b>48–72/0.9<br/>weight 700, tight</div>
+        <div class="sample ts-display">Why is the sky blue?</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>Prompt</b>32/1.1<br/>weight 600</div>
+        <div class="sample ts-prompt">Today's unknowns</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>Body</b>17/1.55<br/>weight 400, ~65 char</div>
+        <div class="sample ts-body">Rayleigh scattering favors shorter wavelengths. The sky appears blue because…</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>UI label</b>13/1.3<br/>weight 500</div>
+        <div class="sample ts-ui">Include a repeat topic</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>Meta</b>10/1.3<br/>weight 600, +0.16em</div>
+        <div class="sample ts-label">Day 27 · Streak 12</div>
+      </div>
+    </div>
+
+    <!-- COLOR -->
+    <div class="spec">
+      <h4>Color <span class="sm">two ink levels, no accent</span></h4>
+      <div class="swatch-row">
+        <div class="sw paper">PAPER · #FFFFFF</div>
+        <div class="sw ink">INK · #000000</div>
+      </div>
+      <p class="kicker">Where each appears</p>
+      <p><b>Paper</b> — landing, settings, prompts, briefings, score reveal. Reading + composing.</p>
+      <p><b>Ink</b> — countdown &amp; recording. The "ritual" surface; phone becomes a microphone.</p>
+      <p class="kicker">Regressions</p>
+      <p>No red. Down-deltas use the <b>same</b> weight as up-deltas, with a leading <b>−</b> and a small <b>▾</b>. Honesty is delivered by typography, not alarm.</p>
+      <p class="kicker">If we ever need an accent</p>
+      <p>Reserved black bar (8px) under the active line. Color stays out.</p>
+    </div>
+
+    <!-- MOTION -->
+    <div class="spec">
+      <h4>Motion <span class="sm">deliberate, never decorative</span></h4>
+      <ul class="motion-list">
+        <li><b>Countdown 3→2→1→GO</b>
+          Each glyph hard-cuts in at 1.00s; on exit, scales 1.00→1.04 and fades over 200ms. No crossfade.</li>
+        <li><b>Prep ring (10s)</b>
+          Stroke fills clockwise, linear. At 0.0s the ring snaps to full, the dot scales 1.00→1.06, mic engages. No "tap to start".</li>
+        <li><b>Record pulse</b>
+          Dot scales 1.00↔1.03 at ~52 BPM (resting heart). Radial waveform driven by FFT bins, opacity 0.4→1.0 mapped to amplitude.</li>
+        <li><b>Briefing transition</b>
+          Page slides 60% from right, opacity 0→1, 360ms ease-out. Status dots tick in sync.</li>
+        <li><b>Score reveal</b>
+          Each row fades in over 180ms, 80ms stagger. Numbers count up over 600ms, ease-out. <i>No</i> bounce, <i>no</i> confetti, <i>no</i> haptics on regression.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============== PHASE 1: ENTRY ============== -->
+  <div class="section-head">
+    <div class="section-num">C</div>
+    <h2 class="section-title">Storyboard — full daily session</h2>
+    <div class="section-rule"></div>
+    <div class="section-note">left → right, top → bottom</div>
+  </div>
+
+  <div class="phase">
+    <span class="dot"></span>
+    <span class="name">Phase 1 · Enter</span>
+    <span class="desc">arrive, accept the day's contract</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="row">
+    <!-- 1. Home -->
+    <div class="phone">
+      <div class="label"><span class="n">01</span> Home / Landing</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <!-- top logo -->
+          <div style="text-align:center; margin-top:40px;">
+            <div class="uu-mark" style="font-size:34px;">UU</div>
+            <div class="tiny-label" style="margin-top:6px;">Unknown Unknowns</div>
+          </div>
+          <!-- center CTA -->
+          <div class="h-center">
+            <div style="font-family:var(--ui); font-weight:600; font-size:22px; letter-spacing:-0.02em; line-height:1.1; max-width:200px; margin-bottom:18px;">Today's<br/>unknowns</div>
+            <div class="pill solid" style="width:200px;">Begin →</div>
+            <div style="margin-top:28px; font-family:var(--ui); font-size:11px; letter-spacing:0.04em;">Day 27 · 12-day streak</div>
+            <div class="tiny-label" style="margin-top:4px;">Mon · May 26</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 01</span>
+      <div class="arrow">
+        <svg viewBox="0 0 56 22"><path d="M2 11 L52 11 M44 4 L52 11 L44 18" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      Logo + one tap. Streak is a footnote, not a trophy.<br/>
+      <ul>
+        <li>Date in tiny caps</li>
+        <li>If complete → CTA becomes "Done for today" + day's deltas inline</li>
+      </ul>
+    </div>
+
+    <!-- 1b. Home — completed state -->
+    <div class="phone">
+      <div class="label"><span class="n">01·b</span> Home — already done</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div style="text-align:center; margin-top:40px;">
+            <div class="uu-mark" style="font-size:34px;">UU</div>
+            <div class="tiny-label" style="margin-top:6px;">Unknown Unknowns</div>
+          </div>
+          <div class="h-center">
+            <div style="font-family:var(--ui); font-weight:600; font-size:18px; letter-spacing:-0.02em;">Done for today.</div>
+            <div style="margin-top:10px; font-family:var(--ui); font-size:11px; letter-spacing:0.04em; opacity:0.6;">New unknowns in 14h 22m</div>
+            <div style="margin-top:28px; width:200px; border-top:1px solid #000; padding-top:14px;">
+              <div class="metric-row"><span class="lbl">Sky · blue</span><span class="d">+1.4</span></div>
+              <div class="metric-row"><span class="lbl">Entropy</span><span class="d">+0.8</span></div>
+              <div class="metric-row"><span class="lbl">Treaty of Westphalia</span><span class="d">−0.2</span></div>
+            </div>
+            <div style="margin-top:22px; font-family:var(--ui); font-size:11px; letter-spacing:0.04em;">Day 27 · 12-day streak</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">EMPTY</span>
+      Quiet completed state shows yesterday's deltas in line — no "well done!" copy.<br/>
+      Regressions live on the home screen on purpose.
+    </div>
+
+    <!-- 2. Session settings -->
+    <div class="phone">
+      <div class="label"><span class="n">02</span> Session settings</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div style="margin-top:26px;">
+            <div class="tiny-label">Today's session</div>
+            <div style="font-family:var(--ui); font-weight:700; font-size:22px; letter-spacing:-0.02em; margin-top:4px;">Configure.</div>
+          </div>
+
+          <div style="margin-top:30px;">
+            <div class="tiny-label">Prompts</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px;">
+              <div style="border:1.5px solid #000; padding:14px 0; text-align:center; font-weight:600; font-size:18px;">1</div>
+              <div style="border:1.5px solid #000; padding:14px 0; text-align:center; font-weight:600; font-size:18px;">2</div>
+              <div style="background:#000; color:#fff; border:1.5px solid #000; padding:14px 0; text-align:center; font-weight:600; font-size:18px;">3</div>
+            </div>
+          </div>
+
+          <div style="margin-top:24px;">
+            <div class="tiny-label">Repeat a prior topic</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding:12px 0; border-top:1px solid #000; border-bottom:1px solid #000;">
+              <div style="font-family:var(--ui); font-weight:500; font-size:13px;">Include one</div>
+              <div style="width:36px; height:20px; border:1.5px solid #000; border-radius:12px; position:relative;">
+                <div style="position:absolute; right:2px; top:2px; width:14px; height:14px; background:#000; border-radius:50%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1;"></div>
+          <div class="pill solid" style="margin-bottom:6px;">Begin →</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 02</span>
+      Two taps to start.
+      <ul>
+        <li>Segmented 1/2/3 chip</li>
+        <li>Toggle disabled on day 1</li>
+        <li>"Begin" stays bottom-fixed; thumb reach</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============== PHASE 2: COLD RECORD ============== -->
+  <div class="phase">
+    <span class="dot"></span>
+    <span class="name">Phase 2 · Cold record</span>
+    <span class="desc">no briefing yet — speak what you think you know</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="row">
+    <!-- 3. Countdown -->
+    <div class="phone">
+      <div class="label"><span class="n">03</span> Countdown</div>
+      <div class="frame black">
+        <div class="status" style="color:#fff;"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen" style="color:#fff;">
+          <div class="h-center">
+            <div class="countdown">3</div>
+          </div>
+          <div class="tiny-label" style="text-align:center; opacity:0.5; margin-bottom:14px;">Prompt 1 of 3</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 03</span>
+      One glyph. Center. Hard cuts 3→2→1→GO.<br/>
+      No animation curve. The phone becomes a metronome.
+    </div>
+
+    <!-- 4. Prompt + prep -->
+    <div class="phone">
+      <div class="label"><span class="n">04</span> Prompt + 10s prep</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div style="margin-top:12px;">
+            <div class="tiny-label">Prompt 1 / 3</div>
+            <div style="font-family:var(--ui); font-weight:600; font-size:28px; letter-spacing:-0.025em; line-height:1.05; margin-top:14px;">Why is the sky blue?</div>
+          </div>
+          <div class="h-center" style="flex:1;">
+            <div class="ring solid" style="position:relative;">
+              <!-- progress arc — about 60% -->
+              <svg viewBox="0 0 140 140" width="140" height="140" style="position:absolute; inset:-2px;">
+                <circle cx="70" cy="70" r="68" fill="none" stroke="#000" stroke-width="3" stroke-dasharray="427" stroke-dashoffset="170" transform="rotate(-90 70 70)"/>
+              </svg>
+              <div class="rec-dot"></div>
+            </div>
+            <div class="tiny-label" style="margin-top:18px;">Mic engages in 4s</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 04</span>
+      Prep ring counts down — the user can't <i>start</i>, only <i>be started</i>.
+      <ul>
+        <li>Ring fills clockwise, linear</li>
+        <li>At 0 → ring snaps full, recording begins automatically</li>
+        <li>No "skip" — the wait is the design</li>
+      </ul>
+    </div>
+
+    <!-- 5. Recording -->
+    <div class="phone">
+      <div class="label"><span class="n">05</span> Recording</div>
+      <div class="frame black">
+        <div class="status" style="color:#fff;"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen" style="color:#fff;">
+          <div style="text-align:center; margin-top:8px;">
+            <div class="tiny-label" style="opacity:0.5;">Prompt 1 / 3 · Recording</div>
+            <div style="font-family:var(--ui); font-weight:600; font-size:13px; margin-top:4px; opacity:0.7;">Why is the sky blue?</div>
+          </div>
+          <div class="h-center" style="flex:1; position:relative;">
+            <div style="position:relative;">
+              <div class="radial-wave"></div>
+              <div class="radial-wave r2"></div>
+              <div class="radial-wave r3"></div>
+              <!-- spikes -->
+              <svg class="radial-spikes" viewBox="-80 -80 160 160" width="200" height="200">
+                <g stroke="#fff" stroke-width="1.5" stroke-linecap="round">
+                  <line x1="0" y1="-70" x2="0" y2="-58"/>
+                  <line x1="35" y1="-60" x2="29" y2="-50" transform="rotate(30)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-54" transform="rotate(60)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-62" transform="rotate(90)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-50" transform="rotate(120)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-58" transform="rotate(150)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-46" transform="rotate(180)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-60" transform="rotate(210)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-52" transform="rotate(240)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-64" transform="rotate(270)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-56" transform="rotate(300)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-48" transform="rotate(330)"/>
+                </g>
+              </svg>
+              <div style="width:120px; height:120px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center;">
+                <div style="width:14px; height:14px; background:#000; border-radius:50%;"></div>
+              </div>
+            </div>
+            <div style="margin-top:34px; font-family:var(--ui); font-weight:600; font-size:32px; font-variant-numeric:tabular-nums; letter-spacing:-0.04em;">00:42</div>
+            <div class="tiny-label" style="opacity:0.5;">target 60–90s</div>
+          </div>
+          <div style="text-align:center; padding-bottom:8px;">
+            <div style="display:inline-block; font-family:var(--ui); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; opacity:0.5; border-top:1px solid #fff; padding-top:8px;">hold to end</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 05</span>
+      Radial waveform wraps the dot — amplitude maps to spike length.
+      <ul>
+        <li>Pulse at ~52 BPM</li>
+        <li>"Hold to end" — early-stop is not one-tap</li>
+        <li>Counter top-right is body weight, not display</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- 6. Repeat note -->
+    <div class="phone">
+      <div class="label"><span class="n">06</span> Loop · prompts 2 + 3</div>
+      <div class="frame" style="background:#fafafa;">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div class="h-center">
+            <div class="tiny-label" style="margin-bottom:18px;">Transitioning</div>
+            <div style="font-family:var(--ui); font-weight:600; font-size:22px; letter-spacing:-0.02em; line-height:1.1; text-align:center;">2 of 3</div>
+            <div style="margin-top:10px; font-family:var(--ui); font-size:13px; opacity:0.6;">Next prompt incoming</div>
+            <div style="margin-top:32px; width:140px; height:2px; background:#000; opacity:0.3; position:relative;">
+              <div style="position:absolute; left:0; top:0; height:2px; width:66%; background:#000;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">INTERSTITIAL</span>
+      Brief 1.2s breath between prompts.<br/>Then countdown → prompt → record repeats for 2 + 3.<br/><br/>
+      <i>Why exist?</i> Marks a clean rhythm — without it, screens flip and the ritual flattens.
+    </div>
+
+    <!-- 7. Briefing -->
+    <div class="phone">
+      <div class="label"><span class="n">07</span> Briefing (1 of 3)</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div class="progress-dots" style="margin-top:6px;">
+            <i class="on"></i><i></i><i></i>
+          </div>
+          <div style="margin-top:18px;">
+            <div class="tiny-label">Briefing · 1 of 3</div>
+            <div style="font-family:var(--ui); font-weight:700; font-size:22px; letter-spacing:-0.025em; margin-top:6px; line-height:1.05;">Rayleigh scattering &amp; the blue sky</div>
+          </div>
+          <div style="margin-top:14px; font-family:var(--ui); font-size:13px; line-height:1.55; color:#222;">
+            <p style="margin:0 0 10px;">The sky is blue not because air is blue, but because the air <i>scatters</i> short wavelengths more aggressively than long ones.</p>
+            <p style="margin:0 0 10px;">When sunlight enters the atmosphere, photons collide with N₂ and O₂ molecules far smaller than the light's wavelength…</p>
+            <p style="margin:0;">At sunset the path through air is longer, the blue has scattered away, and the reds…</p>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="tiny-label" style="text-align:center; opacity:0.5; padding-bottom:6px;">Swipe ›</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 07</span>
+      Reading is the point.
+      <ul>
+        <li>~65 char measure</li>
+        <li>17/1.55 body, generous</li>
+        <li>Status dots top; no nav bar</li>
+        <li>Swipeable; chrome disappears at scroll</li>
+      </ul>
+    </div>
+
+    <!-- 7b -->
+    <div class="phone">
+      <div class="label"><span class="n">07·c</span> Briefing (3 of 3)</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div class="progress-dots" style="margin-top:6px;">
+            <i></i><i></i><i class="on"></i>
+          </div>
+          <div style="margin-top:18px;">
+            <div class="tiny-label">Briefing · 3 of 3</div>
+            <div style="font-family:var(--ui); font-weight:700; font-size:22px; letter-spacing:-0.025em; margin-top:6px; line-height:1.05;">Westphalia: state sovereignty, 1648</div>
+          </div>
+          <div style="margin-top:14px; font-family:var(--ui); font-size:13px; line-height:1.55; color:#222;">
+            <p style="margin:0 0 10px;">The Peace of Westphalia ended the Thirty Years' War and is often credited — perhaps too cleanly — with founding the modern state system.</p>
+            <p style="margin:0 0 10px;">What it actually did was acknowledge cuius regio, eius religio at scale: rulers, not popes, would dictate religion within their borders…</p>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="pill solid" style="text-align:center;">Final challenges →</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">END OF READING</span>
+      Final dot lit → CTA appears.<br/><br/>
+      Phase transition feels chosen, not auto-fired. Last briefing earns the button.
+    </div>
+  </div>
+
+  <!-- ============== PHASE 3: RE-RECORD ============== -->
+  <div class="phase">
+    <span class="dot"></span>
+    <span class="name">Phase 3 · Final challenge</span>
+    <span class="desc">new angles, same topics — speak again</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="row">
+    <!-- 8a. Final challenge prompt -->
+    <div class="phone">
+      <div class="label"><span class="n">08</span> Final prompt + prep</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div style="margin-top:12px;">
+            <div class="tiny-label">Final · 1 of 3</div>
+            <div style="font-family:var(--ui); font-weight:600; font-size:24px; letter-spacing:-0.025em; line-height:1.1; margin-top:14px;">Why does the sun look red at sunset?</div>
+          </div>
+          <div class="h-center" style="flex:1;">
+            <div class="ring solid" style="position:relative;">
+              <svg viewBox="0 0 140 140" width="140" height="140" style="position:absolute; inset:-2px;">
+                <circle cx="70" cy="70" r="68" fill="none" stroke="#000" stroke-width="3" stroke-dasharray="427" stroke-dashoffset="320" transform="rotate(-90 70 70)"/>
+              </svg>
+              <div class="rec-dot"></div>
+            </div>
+            <div class="tiny-label" style="margin-top:18px;">8s</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 08</span>
+      Same prep-ring ritual as 04, but the prompt is a <i>new angle</i> on the same topic.<br/>
+      Tests transfer, not recall.
+    </div>
+
+    <!-- 8b. Final recording -->
+    <div class="phone">
+      <div class="label"><span class="n">08·b</span> Final recording</div>
+      <div class="frame black">
+        <div class="status" style="color:#fff;"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen" style="color:#fff;">
+          <div style="text-align:center; margin-top:8px;">
+            <div class="tiny-label" style="opacity:0.5;">Final · 1 of 3 · Recording</div>
+            <div style="font-family:var(--ui); font-weight:600; font-size:13px; margin-top:4px; opacity:0.7;">Why does the sun look red at sunset?</div>
+          </div>
+          <div class="h-center" style="flex:1; position:relative;">
+            <div style="position:relative;">
+              <div class="radial-wave"></div>
+              <div class="radial-wave r2"></div>
+              <div class="radial-wave r3"></div>
+              <svg class="radial-spikes" viewBox="-80 -80 160 160" width="200" height="200">
+                <g stroke="#fff" stroke-width="1.5" stroke-linecap="round">
+                  <line x1="0" y1="-70" x2="0" y2="-50"/>
+                  <line x1="0" y1="-70" x2="0" y2="-58" transform="rotate(30)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-44" transform="rotate(60)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-62" transform="rotate(90)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-52" transform="rotate(120)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-46" transform="rotate(150)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-58" transform="rotate(180)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-54" transform="rotate(210)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-48" transform="rotate(240)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-60" transform="rotate(270)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-50" transform="rotate(300)"/>
+                  <line x1="0" y1="-70" x2="0" y2="-56" transform="rotate(330)"/>
+                </g>
+              </svg>
+              <div style="width:120px; height:120px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center;">
+                <div style="width:14px; height:14px; background:#000; border-radius:50%;"></div>
+              </div>
+            </div>
+            <div style="margin-top:34px; font-family:var(--ui); font-weight:600; font-size:32px; font-variant-numeric:tabular-nums; letter-spacing:-0.04em;">01:08</div>
+            <div class="tiny-label" style="opacity:0.5;">target 60–90s</div>
+          </div>
+          <div style="text-align:center; padding-bottom:8px;">
+            <div style="display:inline-block; font-family:var(--ui); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; opacity:0.5; border-top:1px solid #fff; padding-top:8px;">hold to end</div>
+          </div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">LOOP × 3</span>
+      Same record screen as 05 — intentionally identical, to feel like the same chamber.<br/>
+      User shouldn't notice they've changed phases visually; the prompts do the work.
+    </div>
+
+    <!-- 9a. Score reveal -->
+    <div class="phone">
+      <div class="label"><span class="n">09</span> Score · topic 1</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div class="progress-dots" style="margin-top:6px;">
+            <i class="on"></i><i></i><i></i>
+          </div>
+          <div style="margin-top:14px;">
+            <div class="tiny-label">Topic 1 / 3</div>
+            <div style="font-family:var(--ui); font-weight:700; font-size:22px; letter-spacing:-0.025em; line-height:1.05; margin-top:4px;">Why the sky is blue</div>
+          </div>
+
+          <div class="h-center" style="flex:1; justify-content:flex-start; padding-top:18px;">
+            <div class="tiny-label" style="opacity:0.5; align-self:flex-start;">Net change</div>
+            <div class="delta-big" style="align-self:flex-start; margin-top:2px;">+1.4</div>
+
+            <div style="width:100%; margin-top:22px;">
+              <div style="display:grid; grid-template-columns:1fr 32px 32px 44px; gap:10px; font-family:var(--ui); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; opacity:0.45; padding-bottom:6px; border-bottom:1px solid #000;">
+                <span></span><span style="text-align:right;">Cold</span><span style="text-align:right;">Final</span><span style="text-align:right;">Δ</span>
+              </div>
+              <div class="metric-row"><span class="lbl">Coverage</span><span class="a">4</span><span class="b">7</span><span class="d">+3</span></div>
+              <div class="metric-row"><span class="lbl">Accuracy</span><span class="a">6</span><span class="b">8</span><span class="d">+2</span></div>
+              <div class="metric-row"><span class="lbl">Structure</span><span class="a">5</span><span class="b">6</span><span class="d">+1</span></div>
+              <div class="metric-row"><span class="lbl">Depth</span><span class="a">3</span><span class="b">5</span><span class="d">+2</span></div>
+              <div class="metric-row"><span class="lbl">Clarity</span><span class="a">7</span><span class="b">6</span><span class="d down">−1 ▾</span></div>
+            </div>
+          </div>
+          <div class="tiny-label" style="text-align:center; opacity:0.5;">Swipe ›</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 09</span>
+      <b>The climax.</b> Numbers fade in, count up over 600ms.
+      <ul>
+        <li>Big Δ headline, top-left</li>
+        <li>Cold / Final / Δ as a small ledger</li>
+        <li>Regressions same weight + −/▾</li>
+        <li>Tabular nums, never centered</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- 9b -->
+    <div class="phone">
+      <div class="label"><span class="n">09·b</span> Score · topic 2</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div class="progress-dots" style="margin-top:6px;">
+            <i></i><i class="on"></i><i></i>
+          </div>
+          <div style="margin-top:14px;">
+            <div class="tiny-label">Topic 2 / 3</div>
+            <div style="font-family:var(--ui); font-weight:700; font-size:22px; letter-spacing:-0.025em; line-height:1.05; margin-top:4px;">Entropy, briefly</div>
+          </div>
+          <div class="h-center" style="flex:1; justify-content:flex-start; padding-top:18px;">
+            <div class="tiny-label" style="opacity:0.5; align-self:flex-start;">Net change</div>
+            <div class="delta-big" style="align-self:flex-start; margin-top:2px;">+0.8</div>
+            <div style="width:100%; margin-top:22px;">
+              <div style="display:grid; grid-template-columns:1fr 32px 32px 44px; gap:10px; font-family:var(--ui); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; opacity:0.45; padding-bottom:6px; border-bottom:1px solid #000;">
+                <span></span><span style="text-align:right;">Cold</span><span style="text-align:right;">Final</span><span style="text-align:right;">Δ</span>
+              </div>
+              <div class="metric-row"><span class="lbl">Coverage</span><span class="a">5</span><span class="b">7</span><span class="d">+2</span></div>
+              <div class="metric-row"><span class="lbl">Accuracy</span><span class="a">4</span><span class="b">6</span><span class="d">+2</span></div>
+              <div class="metric-row"><span class="lbl">Structure</span><span class="a">6</span><span class="b">5</span><span class="d down">−1 ▾</span></div>
+              <div class="metric-row"><span class="lbl">Depth</span><span class="a">5</span><span class="b">6</span><span class="d">+1</span></div>
+              <div class="metric-row"><span class="lbl">Clarity</span><span class="a">5</span><span class="b">6</span><span class="d">+1</span></div>
+            </div>
+          </div>
+          <div class="tiny-label" style="text-align:center; opacity:0.5;">Swipe ›</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">REGRESSION</span>
+      Structure went down — shown at <b>same visual weight</b> as the gains.<br/>
+      Cold honesty principle made visible.
+    </div>
+
+    <!-- 9c -->
+    <div class="phone">
+      <div class="label"><span class="n">09·c</span> Score · topic 3 (worse)</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div class="progress-dots" style="margin-top:6px;">
+            <i></i><i></i><i class="on"></i>
+          </div>
+          <div style="margin-top:14px;">
+            <div class="tiny-label">Topic 3 / 3</div>
+            <div style="font-family:var(--ui); font-weight:700; font-size:22px; letter-spacing:-0.025em; line-height:1.05; margin-top:4px;">Treaty of Westphalia</div>
+          </div>
+          <div class="h-center" style="flex:1; justify-content:flex-start; padding-top:18px;">
+            <div class="tiny-label" style="opacity:0.5; align-self:flex-start;">Net change</div>
+            <div class="delta-big" style="align-self:flex-start; margin-top:2px;">−0.2</div>
+            <div style="width:100%; margin-top:22px;">
+              <div style="display:grid; grid-template-columns:1fr 32px 32px 44px; gap:10px; font-family:var(--ui); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; opacity:0.45; padding-bottom:6px; border-bottom:1px solid #000;">
+                <span></span><span style="text-align:right;">Cold</span><span style="text-align:right;">Final</span><span style="text-align:right;">Δ</span>
+              </div>
+              <div class="metric-row"><span class="lbl">Coverage</span><span class="a">6</span><span class="b">7</span><span class="d">+1</span></div>
+              <div class="metric-row"><span class="lbl">Accuracy</span><span class="a">5</span><span class="b">4</span><span class="d down">−1 ▾</span></div>
+              <div class="metric-row"><span class="lbl">Structure</span><span class="a">6</span><span class="b">5</span><span class="d down">−1 ▾</span></div>
+              <div class="metric-row"><span class="lbl">Depth</span><span class="a">4</span><span class="b">5</span><span class="d">+1</span></div>
+              <div class="metric-row"><span class="lbl">Clarity</span><span class="a">7</span><span class="b">6</span><span class="d down">−1 ▾</span></div>
+            </div>
+          </div>
+          <div class="tiny-label" style="text-align:center; opacity:0.5;">Continue ›</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">EDGE</span>
+      Net negative day.<br/>
+      No special "uh oh" treatment. The number is delivered, the user keeps walking.
+    </div>
+
+    <!-- 10. Completion -->
+    <div class="phone">
+      <div class="label"><span class="n">10</span> Completion</div>
+      <div class="frame">
+        <div class="status"><span class="l">9:41</span><span class="r"></span></div>
+        <div class="screen">
+          <div style="text-align:center; margin-top:40px;">
+            <div class="uu-mark" style="font-size:34px;">UU</div>
+          </div>
+          <div class="h-center">
+            <div style="font-family:var(--ui); font-weight:600; font-size:24px; letter-spacing:-0.025em; line-height:1.1; max-width:200px;">Done.</div>
+            <div style="margin-top:18px; font-family:var(--ui); font-size:13px; line-height:1.5; color:#222; max-width:200px;">You spoke three times.<br/>You read three things.<br/>You spoke three times again.</div>
+            <div style="margin-top:28px; font-family:var(--ui); font-size:11px; letter-spacing:0.04em;">12-day streak</div>
+            <div class="tiny-label" style="margin-top:4px; opacity:0.5;">New unknowns in 14h 22m</div>
+          </div>
+          <div class="tiny-label" style="text-align:center; opacity:0.4; padding-bottom:6px;">Close</div>
+        </div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="annot">
+      <span class="tag">SCREEN 10</span>
+      Quiet close. No "great job".<br/>
+      The three sentences are descriptive — name what just happened, nothing more.
+      <ul>
+        <li>Streak is a footnote</li>
+        <li>Tomorrow is a countdown, not a tease</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============== ENDNOTE ============== -->
+  <div class="endnote">
+    <b>Next step</b> — pick a logo direction, sign off on the storyboard, and I'll take screens 04, 05 and 09 to high fidelity first (the ritual moment + the climax). Everything else falls in line behind those three.
+  </div>
+
+</div>
+</body>
+</html>

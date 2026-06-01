@@ -2,3 +2,10 @@
 from app.bots.nutrition.models import DailySummary, FoodItemCache, FoodLog  # noqa: F401
 from app.bots.podcast.models import PodcastEpisode  # noqa: F401
 from app.bots.social.models import SocialEntry  # noqa: F401
+from app.unknownUnknowns.models import (  # noqa: F401
+    DailySession,
+    Prompt,
+    Recording,
+    Score,
+    User,
+)

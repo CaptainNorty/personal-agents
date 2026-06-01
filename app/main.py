@@ -11,6 +11,7 @@ from app.bots.social.scheduler import register_social_jobs
 from app.common.scheduler import start_scheduler, stop_scheduler
 from app.common.telegram import register_webhooks
 from app.db.session import create_tables
+from app.unknownUnknowns.router import router as uu_router
 from app.webhooks.telegram import router as telegram_router
 
 
@@ -43,6 +44,7 @@ app.add_middleware(
 )
 
 app.include_router(telegram_router)
+app.include_router(uu_router)
 
 
 @app.get("/health")

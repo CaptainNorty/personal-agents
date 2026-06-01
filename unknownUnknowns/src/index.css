@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #000000;
+  --color-paper: #ffffff;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== Countdown glyph =====
+ * Hard-cut entry, hold for 800ms, then scale 1→1.04 + fade 1→0 over the final 200ms.
+ * Per design spec: no crossfade.
+ */
+@keyframes countdown-glyph {
+  0%,
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+.animate-countdown {
+  animation: countdown-glyph 1000ms linear forwards;
+}
+
+/* ===== Prep ring =====
+ * Progress arc fills clockwise over 10 seconds, linear.
+ * Circumference is 2π × 68 ≈ 427.26.
+ */
+@keyframes prep-arc {
+  from {
+    stroke-dashoffset: 427.26;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-prep-arc {
+  animation: prep-arc 10000ms linear forwards;
+}
+
+/* Dot scales 1.00 → 1.06 when the ring snaps full and the mic engages. */
+@keyframes prep-engage {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+.animate-prep-engage {
+  animation: prep-engage 200ms ease-out forwards;
+}
+
+/* ===== Record pulse =====
+ * Dot scales 1.00 ↔ 1.03 at ~52 BPM (resting heart, 1154ms per cycle).
+ */
+@keyframes record-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.animate-record-pulse {
+  animation: record-pulse 1154ms ease-in-out infinite;
+}
+
+/* ===== Interstitial progress bar =====
+ * 1.2s breath between cold prompts.
+ */
+@keyframes interstitial-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-interstitial-fill {
+  transform-origin: left center;
+  animation: interstitial-fill 1200ms linear forwards;
+}
+
+/* ===== Thinking dots =====
+ * Used in PreparingBriefings to signal the LLM is working. Calm, 1.4s cycle,
+ * staggered per dot via inline animation-delay.
+ */
+@keyframes thinking-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.9);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-thinking-dot {
+  animation: thinking-dot 1400ms ease-in-out infinite both;
+}
+
+/* ===== Score reveal =====
+ * Each row fades up over 180ms; per-row stagger via inline animation-delay (80ms each).
+ * Numbers count up via JS rAF over 600ms ease-out — see useCountUp in Score.tsx.
+ */
+@keyframes score-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-score-row-in {
+  opacity: 0;
+  animation: score-row-in 180ms ease-out forwards;
+}
+
+/* ===== Shared text utility =====
+ * "Tiny label" — recurring header/footer caps treatment.
+ */
+@utility tiny-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}

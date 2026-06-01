@@ -17,6 +17,8 @@ dependencies = [
     "python-dotenv>=1.0",
     "loguru>=0.7",
     "pydub>=0.25",
+    "boto3>=1.43.18",
+    "firebase-admin>=7.4.0",
 ]
 
 [project.optional-dependencies]
