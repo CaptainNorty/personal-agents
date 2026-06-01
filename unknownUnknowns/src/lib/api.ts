@@ -22,7 +22,10 @@ import type {
   TodaySessionResponse,
 } from './types';
 
-const BASE = '/api/v1/uu';
+/** Base URL for UU endpoints. In dev (`npm run dev`), the default relative
+ * path hits the Vite proxy → localhost:8000. In prod builds the
+ * `.env.production` override points at the deployed backend. */
+const BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api/v1/uu';
 const TODAY_CACHE_KEY = 'uu.today';
 const FINALS_CACHE_KEY = 'uu.finals';
 const BRIEFINGS_CACHE_KEY = 'uu.briefings';

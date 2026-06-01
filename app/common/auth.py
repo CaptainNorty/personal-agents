@@ -29,19 +29,29 @@ from app.db.session import get_db
 from app.unknownUnknowns.models import User
 
 
-def _init_firebase_admin() -> None:
-    """Initialize the Admin SDK once, lazily. Safe to call repeatedly."""
+def _ensure_firebase_initialized() -> None:
+    """Lazy init of the Admin SDK. Called from get_current_user so any
+    failure surfaces as a 500 on UU routes only — unrelated routes (the
+    Telegram bots) stay up even if the service account JSON is missing
+    or misconfigured."""
     if firebase_admin._apps:
         return
-    cred = credentials.Certificate(settings.firebase_admin_key_path)
-    firebase_admin.initialize_app(cred)
-    logger.info(
-        f"[uu auth] Firebase Admin initialized "
-        f"(key={settings.firebase_admin_key_path})"
-    )
-
-
-_init_firebase_admin()
+    try:
+        cred = credentials.Certificate(settings.firebase_admin_key_path)
+        firebase_admin.initialize_app(cred)
+        logger.info(
+            f"[uu auth] Firebase Admin initialized "
+            f"(key={settings.firebase_admin_key_path})"
+        )
+    except Exception as exc:
+        logger.exception(
+            f"[uu auth] Failed to initialize Firebase Admin from "
+            f"{settings.firebase_admin_key_path}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Server auth not available.",
+        ) from exc
 
 
 async def get_current_user(
@@ -50,6 +60,7 @@ async def get_current_user(
 ) -> User:
     """Verify the Firebase ID token in the Authorization header and return
     the matching User row (creating one on first sign-in)."""
+    _ensure_firebase_initialized()
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

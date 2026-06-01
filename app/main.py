@@ -38,7 +38,9 @@ app = FastAPI(title="Personal Agents", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    # Bearer-token auth doesn't need CORS credentials; setting this False
+    # avoids the spec violation of combining `*` origins with credentials.
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
