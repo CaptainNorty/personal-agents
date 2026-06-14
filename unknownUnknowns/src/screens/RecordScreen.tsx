@@ -10,7 +10,6 @@ import {
 import { FAKE_TOPICS } from '../data/fakeTopics';
 
 const MAX_RECORDING_MS = 90_000;
-const HOLD_TO_END_MS = 800;
 const SPIKE_COUNT = 12;
 const MIN_SPIKE_LEN = 8;
 const MAX_SPIKE_LEN = 30;
@@ -55,7 +54,7 @@ export default function RecordScreen({ phase }: Props) {
 
   const [status, setStatus] = useState<Status>('preparing');
   const [secondsElapsed, setSecondsElapsed] = useState(0);
-  const [holding, setHolding] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   // Refresh the prompt text from the API cache if it wasn't warm at mount.
   useEffect(() => {
@@ -88,7 +87,6 @@ export default function RecordScreen({ phase }: Props) {
   const spikeRefs = useRef<(SVGLineElement | null)[]>([]);
   const rafRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
-  const holdTimerRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const stoppedRef = useRef(false);
 
@@ -226,10 +224,6 @@ export default function RecordScreen({ phase }: Props) {
     if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
       audioCtxRef.current.close().catch(() => {});
     }
-    if (holdTimerRef.current !== null) {
-      window.clearTimeout(holdTimerRef.current);
-      holdTimerRef.current = null;
-    }
   }
 
   function computeNextRoute(): string {
@@ -255,20 +249,6 @@ export default function RecordScreen({ phase }: Props) {
         state: { promptCount, includeRepeat },
       });
     }, 300);
-  }
-
-  function onHoldStart() {
-    if (status !== 'recording') return;
-    setHolding(true);
-    holdTimerRef.current = window.setTimeout(stopAndExit, HOLD_TO_END_MS);
-  }
-
-  function onHoldCancel() {
-    if (holdTimerRef.current !== null) {
-      window.clearTimeout(holdTimerRef.current);
-      holdTimerRef.current = null;
-    }
-    setHolding(false);
   }
 
   if (status === 'denied') {
@@ -352,20 +332,35 @@ export default function RecordScreen({ phase }: Props) {
           <div className="mt-1 tiny-label opacity-50">target 60–90s</div>
         </main>
 
-        <footer className="flex justify-center pb-2">
-          <button
-            onPointerDown={onHoldStart}
-            onPointerUp={onHoldCancel}
-            onPointerLeave={onHoldCancel}
-            onPointerCancel={onHoldCancel}
-            className={[
-              'text-[11px] tracking-[0.14em] uppercase border-t border-paper pt-2 px-3 transition-opacity duration-150 select-none touch-none',
-              holding ? 'opacity-100' : 'opacity-50',
-            ].join(' ')}
-            aria-label="Hold to end recording"
-          >
-            hold to end
-          </button>
+        <footer className="pb-4">
+          {confirming ? (
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setConfirming(false)}
+                disabled={status !== 'recording'}
+                className="h-[56px] flex-1 max-w-[160px] rounded-full border-2 border-paper text-[12px] tracking-[0.16em] uppercase font-medium select-none disabled:opacity-40"
+              >
+                Not done yet
+              </button>
+              <button
+                onClick={stopAndExit}
+                disabled={status !== 'recording'}
+                className="h-[56px] flex-1 max-w-[160px] rounded-full bg-paper text-ink text-[12px] tracking-[0.16em] uppercase font-semibold select-none disabled:opacity-40"
+              >
+                Continue
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <button
+                onClick={() => setConfirming(true)}
+                disabled={status !== 'recording'}
+                className="w-[240px] h-[56px] rounded-full border-2 border-paper text-[12px] tracking-[0.2em] uppercase font-medium select-none disabled:opacity-40"
+              >
+                I'm done
+              </button>
+            </div>
+          )}
         </footer>
       </div>
     </div>

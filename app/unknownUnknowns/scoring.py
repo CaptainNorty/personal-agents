@@ -37,7 +37,10 @@ You're scoring a user's recorded explanations for a daily learning app \
 built around the Illusion of Explanatory Depth.
 
 For each topic, you'll receive:
-- The curriculum bullets (the anchor concepts the user was meant to cover)
+- The cold prompt (the question asked on the first attempt)
+- The final prompt (a NEW-ANGLE question, NOT a rephrasing of the cold prompt)
+- The curriculum bullets (the anchor concepts that teach the whole topic; \
+they were written to fully answer the COLD prompt)
 - The cold transcript (the user's first attempt, no preparation)
 - The final transcript (their second attempt after reading a briefing)
 
@@ -47,8 +50,24 @@ Your output is three things:
 3. `notes_md`: one paragraph (~80-150 words) explaining what changed \
 between cold and final
 
+CRITICAL — the two recordings answer DIFFERENT questions, so score them \
+against DIFFERENT targets:
+- Score the COLD recording against the COLD prompt, using the curriculum \
+bullets as the checklist of what a complete answer covers.
+- Score the FINAL recording against the FINAL prompt ONLY. The final is a \
+new-angle question that needs just the SUBSET of concepts relevant to it \
+(plus correct transfer to the new situation). Do NOT penalize the user for \
+omitting curriculum bullets that aren't needed to answer the final question. \
+Treat the curriculum as available knowledge, not a checklist the final must \
+re-cover. Example: cold "Why is the sky blue?" → final "Why is the sky red \
+at sunset?". The final answer needs wavelength-dependent scattering and the \
+longer atmospheric path at sunset; it does NOT need to re-derive everything \
+about daytime blue, and must not be docked for leaving it out.
+
 Metrics (each 1-10):
-- coverage: how many curriculum bullets the user actually touched on
+- coverage: for the cold recording, how many curriculum bullets the user \
+touched; for the final recording, whether they brought in the concepts the \
+FINAL question actually requires (not the full curriculum)
 - accuracy: how correct what they said was
 - structure: how well-organized their explanation flowed
 - depth: how thoroughly they explored each concept they raised

@@ -15,9 +15,11 @@ const MAX_WAIT_SECONDS = 180; // Give up after 3 minutes — server-side wait + 
  *
  * Behavior:
  *   1. Fires POST /briefings/generate (idempotent — fine if already done).
- *   2. Polls GET /briefings every 2s until status === 'complete' or timeout.
+ *   2. Polls GET /briefings every 2s until the FIRST briefing is ready
+ *      (status !== 'pending') or timeout.
  *   3. Shows "N of M ready" so the wait feels active.
- *   4. Navigates to /briefing/1 once complete.
+ *   4. Hands off to /briefing/1 as soon as the first is ready; BriefingFlow
+ *      keeps polling for the rest and shows them progressively.
  *
  * The visual treatment matches the cold→cold interstitial (off-white,
  * tiny-label + display number + progress) so it reads as another
@@ -49,8 +51,10 @@ export default function PreparingBriefings() {
         ).length;
         setReady(readyCount);
         setTotal(data.briefings.length);
-        if (data.status === 'complete') {
-          // Brief beat so the "N of N" lands visually, then proceed.
+        // Hand off as soon as the FIRST briefing is ready, not the whole set.
+        // BriefingFlow keeps polling and reveals the rest progressively.
+        if (data.status !== 'pending') {
+          // Brief beat so the count lands visually, then proceed.
           window.setTimeout(() => {
             if (!cancelled) {
               navigate('/briefing/1', { state: { promptCount, includeRepeat } });

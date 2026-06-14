@@ -39,7 +39,9 @@ export default function PreparingScores() {
         const readyCount = data.scores.filter((s) => s.is_ready).length;
         setReady(readyCount);
         setTotal(data.scores.length);
-        if (data.status === 'complete') {
+        // Hand off as soon as the FIRST topic is scored, not the whole set.
+        // ScoreFlow keeps polling and reveals the rest progressively.
+        if (data.status !== 'pending') {
           window.setTimeout(() => {
             if (!cancelled) {
               navigate('/scores/1', { state: { promptCount, includeRepeat } });
